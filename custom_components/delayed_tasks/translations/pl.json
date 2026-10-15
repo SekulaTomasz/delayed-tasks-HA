@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Delayed Tasks",
+        "description": "Czy chcesz dodać integrację Delayed Tasks do obsługi jednorazowych zadań odłożonych w czasie?"
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Integracja jest już skonfigurowana. Wystarczy jedna instancja."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "delayed_tasks_count": {
+        "name": "Oczekujące zadania"
+      }
+    }
+  }
+}

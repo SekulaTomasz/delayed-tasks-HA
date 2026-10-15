@@ -1,0 +1,70 @@
+schedule_task:
+  name: Zaplanuj zadanie
+  description: Planuje wykonanie jednorazowej akcji odłożonej w czasie (usuwa się po wykonaniu).
+  fields:
+    action:
+      name: Akcja do wykonania
+      description: Pełna nazwa usługi Home Assistant (np. switch.turn_on, light.toggle).
+      required: true
+      example: "switch.turn_on"
+      selector:
+        text:
+    name:
+      name: Nazwa zadania
+      description: Przyjazna nazwa wyświetlana na liście oczekujących zadań.
+      required: false
+      example: "Włącz podgrzewacz w piątek"
+      selector:
+        text:
+    execute_at:
+      name: Dokładna data i godzina
+      description: Konkretny czas uruchomienia (np. 2026-10-16 12:00:00).
+      required: false
+      selector:
+        datetime:
+    delay:
+      name: Opóźnienie (relatywne)
+      description: Alternatywa dla daty - czas za jaki ma nastąpić wykonanie (np. 01:30:00).
+      required: false
+      selector:
+        duration:
+    target:
+      name: Cel (Encja / Urządzenie / Obszar)
+      description: Cel wywoływanej usługi.
+      required: false
+      selector:
+        target:
+    data:
+      name: Parametry akcji
+      description: Dodatkowe parametry przekazywane do usługi (w formacie YAML/JSON).
+      required: false
+      selector:
+        object:
+    missed_action:
+      name: Obsługa pominięcia
+      description: Co zrobić, jeśli czas wykonania minął podczas restartu HA (wykonaj natychmiast lub odrzuć).
+      required: false
+      default: execute
+      selector:
+        select:
+          options:
+            - label: Wykonaj natychmiast po starcie
+              value: execute
+            - label: Odrzuć zadanie
+              value: discard
+
+cancel_task:
+  name: Anuluj zadanie
+  description: Anuluje oczekujące zadanie na podstawie ID.
+  fields:
+    task_id:
+      name: ID zadania
+      description: Identyfikator zadania do anulowania.
+      required: true
+      example: "a1b2c3d4"
+      selector:
+        text:
+
+clear_all:
+  name: Wyczyść wszystkie zadania
+  description: Anuluje i usuwa wszystkie oczekujące zadania jednorazowe.

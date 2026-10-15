@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Delayed Tasks",
+        "description": "Do you want to add the Delayed Tasks integration for one-off scheduled actions?"
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "The integration is already configured. Only a single instance is needed."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "delayed_tasks_count": {
+        "name": "Pending tasks"
+      }
+    }
+  }
+}

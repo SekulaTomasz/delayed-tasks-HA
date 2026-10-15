@@ -1,0 +1,12 @@
+{
+  "domain": "delayed_tasks",
+  "name": "Delayed Tasks",
+  "codeowners": ["@SekulaTomasz"],
+  "config_flow": true,
+  "documentation": "https://github.com/SekulaTomasz/delayed-tasks-HA",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/SekulaTomasz/delayed-tasks-HA/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}
