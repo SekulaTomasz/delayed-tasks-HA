@@ -2,6 +2,7 @@
 import pytest
 from homeassistant import config_entries, data_entry_flow
 from homeassistant.core import HomeAssistant
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.delayed_tasks.const import DOMAIN
 
@@ -26,15 +27,12 @@ async def test_flow_user_step_creates_entry(hass: HomeAssistant) -> None:
 
 async def test_flow_single_instance_abort(hass: HomeAssistant) -> None:
     """Test that creating a second entry is aborted."""
-    entry = config_entries.ConfigEntry(
-        version=1,
-        minor_version=1,
+    entry = MockConfigEntry(
         domain=DOMAIN,
         title="Delayed Tasks",
         data={},
-        source=config_entries.SOURCE_USER,
     )
-    hass.config_entries._entries[entry.entry_id] = entry
+    entry.add_to_hass(hass)
 
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": config_entries.SOURCE_USER}

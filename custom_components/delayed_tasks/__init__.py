@@ -34,8 +34,8 @@ SCHEDULE_SCHEMA = vol.Schema(
         vol.Optional(ATTR_NAME): cv.string,
         vol.Optional(ATTR_EXECUTE_AT): cv.datetime,
         vol.Optional(ATTR_DELAY): cv.time_period,
-        vol.Optional(ATTR_TARGET): cv.dict,
-        vol.Optional(ATTR_DATA): cv.dict,
+        vol.Optional(ATTR_TARGET): dict,
+        vol.Optional(ATTR_DATA): dict,
         vol.Optional(ATTR_MISSED_ACTION, default=CONF_MISSED_EXECUTE): vol.In(
             [CONF_MISSED_EXECUTE, CONF_MISSED_DISCARD]
         ),

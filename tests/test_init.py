@@ -3,23 +3,21 @@ from datetime import timedelta
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.delayed_tasks.const import DOMAIN
 
 
 async def test_setup_and_unload_entry(hass: HomeAssistant) -> None:
     """Test setting up and unloading config entry."""
-    entry = ConfigEntry(
-        version=1,
-        minor_version=1,
+    entry = MockConfigEntry(
         domain=DOMAIN,
         title="Delayed Tasks",
         data={},
-        source="user",
         entry_id="test_entry_1",
     )
+    entry.add_to_hass(hass)
 
     with patch(
         "custom_components.delayed_tasks.manager.Store.async_load",
@@ -45,21 +43,19 @@ async def test_setup_and_unload_entry(hass: HomeAssistant) -> None:
 
 async def test_service_schedule_and_cancel(hass: HomeAssistant) -> None:
     """Test calling schedule_task and cancel_task services."""
-    entry = ConfigEntry(
-        version=1,
-        minor_version=1,
+    entry = MockConfigEntry(
         domain=DOMAIN,
         title="Delayed Tasks",
         data={},
-        source="user",
         entry_id="test_entry_2",
     )
+    entry.add_to_hass(hass)
 
     with patch(
         "custom_components.delayed_tasks.manager.Store.async_load",
         return_value={"tasks": []},
     ):
-        await hass.config_entries.async_setup(entry.entry_id)
+        assert await hass.config_entries.async_setup(entry.entry_id) is True
         await hass.async_block_till_done()
 
     manager = hass.data[DOMAIN][entry.entry_id]

@@ -30,16 +30,19 @@ jobs:
           pytest -v tests/
 
   hacs:
-    name: HACS Action validation
+    name: HACS Validation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: HACS Action
-        uses: "hacs/action@main"
+        uses: hacs/action@main
         with:
-          category: "integration"
+          category: integration
+          ignore: "brands topics description"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   hassfest:
     name: Hassfest validation

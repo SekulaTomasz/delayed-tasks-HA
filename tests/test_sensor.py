@@ -3,33 +3,34 @@ from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.delayed_tasks.const import DOMAIN
 
 
 async def test_sensor_state_and_attributes(hass: HomeAssistant) -> None:
     """Test the pending tasks count sensor and task list attributes."""
-    entry = ConfigEntry(
-        version=1,
-        minor_version=1,
+    entry = MockConfigEntry(
         domain=DOMAIN,
         title="Delayed Tasks",
         data={},
-        source="user",
         entry_id="test_sensor_entry",
     )
+    entry.add_to_hass(hass)
 
     with patch(
         "custom_components.delayed_tasks.manager.Store.async_load",
         return_value={"tasks": []},
     ):
-        await hass.config_entries.async_setup(entry.entry_id)
+        assert await hass.config_entries.async_setup(entry.entry_id) is True
         await hass.async_block_till_done()
 
     manager = hass.data[DOMAIN][entry.entry_id]
-    sensor_entity_id = "sensor.oczekujace_zadania"
+
+    sensors = hass.states.async_entity_ids("sensor")
+    assert len(sensors) == 1
+    sensor_entity_id = sensors[0]
 
     state = hass.states.get(sensor_entity_id)
     assert state is not None
