@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
+from pytest_homeassistant_custom_component.common import async_mock_service
 
 from custom_components.delayed_tasks.const import (
     CONF_MISSED_DISCARD,
@@ -92,11 +93,9 @@ async def test_add_task_validation_errors(hass: HomeAssistant) -> None:
     """Test validation errors when adding tasks."""
     manager = TaskManager(hass)
 
-    # Missing both execute_at and delay
     with pytest.raises(ValueError, match="Musisz podać 'execute_at' lub 'delay'"):
         await manager.async_add_task(action="switch.turn_on")
 
-    # Time in the past
     past_time = dt_util.utcnow() - timedelta(minutes=5)
     with pytest.raises(ValueError, match="Czas wykonania musi być w przyszłości"):
         await manager.async_add_task(action="switch.turn_on", execute_at=past_time)
@@ -115,7 +114,6 @@ async def test_cancel_task(hass: HomeAssistant) -> None:
     assert cancelled is True
     assert task_id not in manager.tasks
 
-    # Cancelling again returns False
     assert await manager.async_cancel_task(task_id) is False
 
 
@@ -142,22 +140,21 @@ async def test_async_execute_task_success(hass: HomeAssistant) -> None:
 
     events = []
     hass.bus.async_listen("delayed_task_executed", lambda e: events.append(e))
+    service_calls = async_mock_service(hass, "test", "service")
 
-    with patch.object(hass.services, "async_call", new_callable=AsyncMock) as mock_call:
-        await manager._async_execute_task(task)
-        mock_call.assert_called_once_with(
-            domain="test",
-            service="service",
-            service_data={"key": "val"},
-            target={},
-            blocking=True,
-        )
-
+    await manager._async_execute_task(task)
     await hass.async_block_till_done()
+
+    assert len(service_calls) == 1
+    assert service_calls[0].domain == "test"
+    assert service_calls[0].service == "service"
+    assert service_calls[0].data == {"key": "val"}
 
     assert task_id not in manager.tasks
     assert len(events) == 1
     assert events[0].data["task_id"] == task_id
+
+    await manager.async_clear_all()
 
 
 async def test_async_execute_task_failure_handles_gracefully(hass: HomeAssistant) -> None:
@@ -172,17 +169,20 @@ async def test_async_execute_task_failure_handles_gracefully(hass: HomeAssistant
     fail_events = []
     hass.bus.async_listen("delayed_task_failed", lambda e: fail_events.append(e))
 
-    with patch.object(
-        hass.services, "async_call", side_effect=RuntimeError("Connection lost")
-    ):
-        await manager._async_execute_task(task)
+    async def _mock_broken(_call):
+        raise RuntimeError("Connection lost")
 
+    hass.services.async_register("test", "broken_service", _mock_broken)
+
+    await manager._async_execute_task(task)
     await hass.async_block_till_done()
 
     assert task_id not in manager.tasks
     assert len(fail_events) == 1
     assert fail_events[0].data["task_id"] == task_id
     assert "Connection lost" in fail_events[0].data["error"]
+
+    await manager.async_clear_all()
 
 
 async def test_async_load_restores_future_and_overdue_tasks(hass: HomeAssistant) -> None:

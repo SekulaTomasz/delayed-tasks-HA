@@ -217,6 +217,9 @@ class TaskManager:
                 {"task_id": task.task_id, "name": task.name, "error": str(err)},
             )
         finally:
+            if task.unsub_timer:
+                task.unsub_timer()
+                task.unsub_timer = None
             self.tasks.pop(task.task_id, None)
             await self._async_save()
             async_dispatcher_send(self.hass, SIGNAL_TASKS_UPDATED)
